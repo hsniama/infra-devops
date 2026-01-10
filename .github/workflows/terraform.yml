@@ -64,40 +64,52 @@ jobs:
           name: tfplan-${{ steps.env.outputs.env }}
           path: terraform/plan.out
 
-  apply:
+  apply-dev:
     needs: plan
-    if: github.event_name == 'push'
+    if: startsWith(github.ref, 'refs/heads/dev/')
     runs-on: ubuntu-latest
-    environment: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
+    environment: dev   # coincide con el federated credential
     defaults:
       run:
         working-directory: terraform
 
     steps:
       - uses: actions/checkout@v4
-
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.6.6
-
       - name: Azure Login (OIDC)
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Select environment
-        id: env
-        run: |
-          if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
-            echo "env=prod" >> $GITHUB_OUTPUT
-          else
-            echo "env=dev" >> $GITHUB_OUTPUT
-          fi
-
       - name: Terraform init
-        run: terraform init -backend-config=../backends/${{ steps.env.outputs.env }}.hcl
-
+        run: terraform init -backend-config=../backends/dev.hcl
       - name: Terraform apply
-        run: terraform apply -auto-approve -var-file=../environments/${{ steps.env.outputs.env }}.tfvars
+        run: terraform apply -auto-approve -var-file=../environments/dev.tfvars
+
+  apply-prod:
+    needs: plan
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: prod   # coincide con tu federated credential
+    defaults:
+      run:
+        working-directory: terraform
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.6
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Terraform init
+        run: terraform init -backend-config=../backends/prod.hcl
+      - name: Terraform apply
+        run: terraform apply -auto-approve -var-file=../environments/prod.tfvars
