@@ -1,11 +1,11 @@
 #location            = "westus2"
-location            = "eastus2"
+location            = "eastus"
 resource_group_name = "rg-devops-dev"
 acr_name            = "acrdevopsh1720dev"     # asegúrate que sea único global
 aks_name            = "aks-devops-dev"
 node_count          = 2
 #node_vm_size        = "Standard_D2s_v3"
-node_vm_size        = "Standard_B2s"
+node_vm_size        = "Standard_D2_v3"
 vnet_name           = "vnet-devops-dev"
 subnet_name         = "snet-aks"
 vnet_cidr           = "10.110.0.0/16"
