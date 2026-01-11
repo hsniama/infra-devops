@@ -1,5 +1,5 @@
-#location            = "westus2"
-location            = "eastus"
+location            = "westus2"
+#location            = "eastus"
 resource_group_name = "rg-devops-prod"
 acr_name            = "acrdevopsh1720prod"
 aks_name            = "aks-devops-1720prod"
