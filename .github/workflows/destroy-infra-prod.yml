@@ -1,0 +1,46 @@
+name: destroy-terraform
+
+on:
+  workflow_dispatch:   # permite ejecutar manualmente desde GitHub Actions
+
+permissions:
+  id-token: write      # necesario para OIDC con Azure
+  contents: read       # necesario para checkout del repo
+
+jobs:
+  terraform-destroy:
+    name: Terraform Destroy
+    runs-on: ubuntu-latest
+    environment: prod    # debe coincidir con el subject en Azure federated credentials
+
+    defaults:
+      run:
+        working-directory: terraform
+
+    env:
+      ARM_USE_OIDC: "true"
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_STORAGE_USE_AZUREAD: "true"
+      TF_VERSION: "1.6.6"   # o la versión que estés usando
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Terraform init
+        run: terraform init -backend-config=../backends/prod.hcl
+
+      - name: Terraform destroy
+        run: terraform destroy -auto-approve -var-file=../environments/prod.tfvars
