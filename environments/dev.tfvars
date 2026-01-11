@@ -1,6 +1,6 @@
 location            = "westus2"
 resource_group_name = "rg-devops-dev"
-acr_name            = "acrdevopshdev"     # asegúrate que sea único global
+acr_name            = "acrdevopsh1720dev"     # asegúrate que sea único global
 aks_name            = "aks-devops-dev"
 node_count          = 2
 node_vm_size        = "Standard_B2ts_v2"

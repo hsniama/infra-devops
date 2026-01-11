@@ -1,7 +1,7 @@
 location            = "westus2"
 resource_group_name = "rg-devops-prod"
-acr_name            = "acrdevopshprod"
-aks_name            = "aks-devops-prod"
+acr_name            = "acrdevopsh1720prod"
+aks_name            = "aks-devops-1720prod"
 node_count          = 2
 node_vm_size        = "Standard_B2ts_v2"
 vnet_name           = "vnet-devops-prod"
