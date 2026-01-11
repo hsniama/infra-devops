@@ -17,7 +17,7 @@ jobs:
   plan:
     runs-on: ubuntu-latest
 
-    # ✅ CLAVE: forzar environment para que el subject sea:
+    # CLAVE: forzar environment para que el subject sea:
     # repo:hsniama/infra-devops:environment:dev o prod
     environment: ${{ (github.event_name == 'pull_request' || github.ref_name == 'main') && 'prod' || 'dev' }}
 
@@ -98,6 +98,10 @@ jobs:
           else
             echo "env=dev" >> $GITHUB_OUTPUT
           fi
+
+      - name: Check backend storage account
+        run: |
+          az storage account show --name sttfstate2e9f0a4f --resource-group rg-tfstate-devops
 
       - name: Terraform init
         run: terraform init -backend-config=../backends/${{ steps.env.outputs.env }}.hcl
