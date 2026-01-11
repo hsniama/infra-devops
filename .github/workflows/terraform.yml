@@ -132,4 +132,7 @@ jobs:
         run: terraform apply -auto-approve tfplan
 
       - name: Terraform output
-        run: terraform output -raw acr_login_server && terraform output -raw aks_name && terraform output -raw resource_group_name
+        run: | 
+          echo "ACR Login Server: $(terraform output -raw acr_login_server)" 
+          echo "AKS Name: $(terraform output -raw aks_name)" 
+          echo "Resource Group: $(terraform output -raw resource_group_name)"
