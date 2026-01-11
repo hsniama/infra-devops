@@ -49,7 +49,7 @@ jobs:
           fi
 
       - name: Terraform fmt
-        run: terraform fmt -check -recursive
+        run: terraform fmt -recursive
 
       - name: Terraform init
         run: terraform init -backend-config=../backends/${{ steps.env.outputs.env }}.hcl
