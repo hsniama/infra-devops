@@ -129,7 +129,7 @@ jobs:
           path: terraform
 
       - name: Terraform apply (exact plan)
-        run: terraform apply -auto-approve tfplan
+        run: terraform apply -lock-timeout=300s -auto-approve tfplan
 
       - name: Terraform output
         run: | 

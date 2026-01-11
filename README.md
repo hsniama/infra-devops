@@ -18,7 +18,7 @@ El estado remoto de Terraform usa llaves separadas:
 
 ## Cómo desplegar (CI/CD)
 ### DEV
-1. Haz push de commits a una rama como `dev/henry`
+1. Haz push de commits a una rama como `dev/henry`, `dev/sebas`, `dev/desarrolladorX`
 2. GitHub Actions ejecuta:
    - `terraform fmt / validate / plan`
    - `terraform apply` (DEV)
@@ -28,6 +28,7 @@ El estado remoto de Terraform usa llaves separadas:
 2. Haz merge a `main`
 3. GitHub Actions ejecuta:
    - `terraform plan/apply` usando la configuración de PROD
+4. Se necesita dos approve en el Pipeline para desplegar a PROD
 
 ## Outputs de Terraform (necesarios para el repositorio de la aplicación)
 Después de que el workflow finalice, revisa los logs del job **apply** (step: **Show Terraform outputs**).  
