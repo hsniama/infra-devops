@@ -1,4 +1,4 @@
-name: destroy-terraform
+name: destroy-terraform-dev
 
 on:
   workflow_dispatch:   # permite ejecutar manualmente desde GitHub Actions
