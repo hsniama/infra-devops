@@ -21,6 +21,9 @@ jobs:
   plan:
     runs-on: ubuntu-latest
 
+    #Para que el OIDC subject sea environment:dev o environment:prod
+    environment: ${{ (github.event_name == 'pull_request' || github.ref_name == 'main') && 'prod' || 'dev' }}
+
     defaults:
       run:
         working-directory: terraform
@@ -77,10 +80,9 @@ jobs:
 
   apply:
     needs: plan
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
 
-    #Para que el OIDC subject sea environment:dev o environment:prod
     environment: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
 
     defaults:
