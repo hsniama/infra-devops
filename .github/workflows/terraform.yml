@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
 
     #Para que el OIDC subject sea environment:dev o environment:prod
-    #environment: ${{ (github.event_name == 'pull_request' || github.ref_name == 'main') && 'prod' || 'dev' }}
+    environment: ${{ (github.event_name == 'pull_request' || github.ref_name == 'main') && 'prod' || 'dev' }}
 
     defaults:
       run:
