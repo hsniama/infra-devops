@@ -49,7 +49,7 @@ az ad app federated-credential create --id "$APP_ID" --parameters "{
 
 echo
 echo "Done."
-echo "Poner esto en GitHub Secrets:"
+echo "Poner estas 3 variables en GitHub > Secrets & Variables > Actions > Repository Secrets:"
 echo "AZURE_CLIENT_ID=$APP_ID"
 echo "AZURE_TENANT_ID=$TENANT_ID"
 echo "AZURE_SUBSCRIPTION_ID=$SUBSCRIPTION_ID"

@@ -47,8 +47,8 @@ az storage container create \
   --auth-mode login 1>/dev/null
 
 echo
-echo "✅ Backend created successfully."
-echo "Export these variables (or save them somewhere safe):"
+echo "Backend created successfully."
+echo "Exporta estas variables o guárdalas en un lugar seguro:"
 echo "STATE_RG=$STATE_RG"
 echo "STATE_SA=$STATE_SA"
 echo "STATE_CONTAINER=$STATE_CONTAINER"

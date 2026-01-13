@@ -8,7 +8,7 @@ set -euo pipefail
 
 STATE_RG="${STATE_RG:-rg-tfstate-devops}"
 
-echo "⚠️  This will DELETE the resource group: $STATE_RG"
+echo "This will DELETE the resource group: $STATE_RG"
 echo "Type DELETE to confirm:"
 read -r CONFIRM
 
@@ -22,4 +22,4 @@ az account show >/dev/null
 echo "==> Deleting resource group..."
 az group delete -n "$STATE_RG" --yes --no-wait
 
-echo "✅ Deletion requested. Azure will remove it asynchronously."
+echo "Deletion requested. Azure will remove it asynchronously."
