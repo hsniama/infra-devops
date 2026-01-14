@@ -1,6 +1,6 @@
 # Repo: infra-devops (Terraform + GitHub Actions + Azure + OIDC)
 
-### Repositorio - `infra-devops` 
+## Repositorio - `infra-devops` 
 
 Este repositorio aprovisiona la infraestructura requerida para la aplicación que está en el repo [https://github.com/hsniama/app-devops](https://github.com/hsniama/app-devops):
 
@@ -12,9 +12,7 @@ Este repositorio aprovisiona la infraestructura requerida para la aplicación qu
 - Creación de App Registration, Service Principal y Federated creds.
 - Estado remoto de Terraform almacenado en Azure Storage (autenticación con Azure AD)
 
-
-
-### Infraestructura en Azure 
+## Infraestructura en Azure 
 - **Región**: `eastus` 
 - **State (backend)**: 
   - resource_group_name: `rg-tfstate-devops`
@@ -35,11 +33,11 @@ Este repositorio aprovisiona la infraestructura requerida para la aplicación qu
             - Azure Container Registry (ACR): `acrdevops1720prod`
             - Azure Kubernetes Service (AKS): `aksdevops1720prod`
 
-### Costos estimados 
+## Costos estimados 
 - **AKS**: mínimo 2 nodos requeridos Tipo: `Standard_D2_v3` *(no tan económico)* 
 - **ACR**: nivel `Basic` 
 
-### Entornos
+## Entornos
 - **DEV**: cualquier push a ramas `dev/**` despliega en DEV
 - **PROD**: merges/pushes a `main` despliegan en PROD (se recomienda mantener habilitada la aprobación de GitHub Environment)
 
@@ -47,7 +45,7 @@ Nota: El estado remoto de Terraform usa llaves separadas:
 - `dev/infra.tfstate`
 - `prod/infra.tfstate`
 
-### Setup del proyecto
+## Setup del proyecto
 
 **0. Clonar el repo:**
 ```bash
@@ -128,7 +126,7 @@ Y en Actions > Variables, crear las siguientes:
 ![Configuración de variables.](./assets/img/3.png)
 
 
-### Ejecución de Pipeline
+## Ejecución de Pipeline
 
 Se tiene el `.github/workflows/terraform.yml`:
 
@@ -136,10 +134,10 @@ Se tiene el `.github/workflows/terraform.yml`:
 
 Resultado:
 - Push a `dev/**` -> Se despliega en el ambiente de DEV.
-- PR para merge desde `dev/**` a `main` -> Se despliega en el ambiente de PROD.
+- PR para merge desde `dev/**` a `main` -> Se despliega en el ambiente de PROD con una aprobación en la fase `apply`.
 
 
-### Outputs de Terraform 
+## Outputs de Terraform 
 *Estos Outputs son necesarios para el repositorio de la aplicación.*
 
 Después de que el workflow finalice, revisa los logs del job **apply** (step: Show Terraform outputs), se necesitará los siguientes valores para el repositorio de microservicios [https://github.com/hsniama/app-devops](https://github.com/hsniama/app-devops):
@@ -149,7 +147,7 @@ Después de que el workflow finalice, revisa los logs del job **apply** (step: S
 - `acr_name`
 - `acr_login_server`
 
-### Limpieza
+## Limpieza
 - La infraestructura de DEV puede destruirse usando/ejecutando el workflow manual: `destroy-dev.yml`
 - La infraestructura de PROD puede destruirse usando/ejecutando el workflow manual: `destroy-prod.yml`
 - El backend de Terraform (almacenamiento del estado) puede eliminarse usando: `scripts/destroy-backend.sh`
