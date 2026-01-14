@@ -136,6 +136,8 @@ Resultado:
 - Push a `dev/**` -> Se despliega en el ambiente de DEV.
 - PR para merge desde `dev/**` a `main` -> Se despliega en el ambiente de PROD con una aprobación en la fase `apply`.
 
+![Pasando a prod, se necesita un approve en apply.](./assets/img/5.png)
+
 
 ## Outputs de Terraform 
 *Estos Outputs son necesarios para el repositorio de la aplicación.*
