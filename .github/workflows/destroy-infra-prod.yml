@@ -28,6 +28,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Validar rama main 
+        if: github.ref != 'refs/heads/main'
+        run: | 
+          echo "Este workflow solo se puede ejecutar desde la rama main. Run workflow: Branch: main"
+          exit 1
+
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}

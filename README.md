@@ -53,7 +53,7 @@ Se tiene 2 entornos para este proyecto:
 - **DEV**: cualquier push a ramas `dev/**` despliega en DEV
 - **PROD**: merge a `main` despliegan en PROD (se recomienda mantener habilitada la aprobación de GitHub Environment)
 
-El estado remoto de Terraform usa llaves separadas:
+El estado remoto de Terraform usa llaves separadas pero mismo Storage Account:
 
 - `dev/infra.tfstate`
 
@@ -87,9 +87,9 @@ echo "$SUBSCRIPTION_ID"
 echo "$TENANT_ID"
 
 ```
-**2. Ejecutar el bootstrap de creación del backend remoto de Terraform en Azure:**
+**2. Ejecutar el script de creación del State Backend remoto de Terraform en Azure:**
 
-El script crea y deja listos estos recursos en *Azure*:
+Este script crea y deja listos estos recursos en *Azure*:
 - Resource Group → `rg-tfstate-devops` (o el que definas).
 - Storage Account → nombre único tipo `sttfstateXXXX`.
 - Blob Container → `tfstate`.
@@ -103,28 +103,26 @@ Después ejecutarlo:
 ```bash
 ./scripts/bootstrap-backend.sh
 ```
-Nota: Este Script crea los recursos del **State (backend)** mencionados arriba.
-
-Al final imprime las siguientes variables del backend en Terraform:
+Al final de la ejecución del script, este imprime las siguientes variables del backend en Terraform:
 - `STATE_RG=rg-tfstate-devops`
 - `STATE_SA=sttfstateXXXX`
 - `STATE_CONTAINER=tfstate`
 
-Nota: Estas variables se deben setear en el backend HCL y en GitHub  Variables de repositorio así que guardarlas.
+Nota: Estas variables se deben setear en el backend HCL y en GitHub Variables del repositorio así que guardarlas.
 
 Setearlas manualmente en el archivo backends/dev.hcl
 ![Setearlas manualmente en el archivo backends/dev.hcl](./assets/img/14.png)
 
 Setearlas manualmente en el archivo backends/prod.hcl
-![Setearlas manualmente en el archivo backends/dev.hcl](./assets/img/14.png)
+![Setearlas manualmente en el archivo backends/dev.hcl](./assets/img/15.png)
 
-En el punto 6 se observa como guardar estas variables en el repositorio de Github.
+En el punto 6 se indica como guardar estas variables en el repositorio de GitHub.
 
 **3. Configuración de Environments en GitHub**
 
 Se crea los environments en el repo > settings > Environments:
 - `dev` 
-- `prod`: Se activa el "Required reviewers para que prod no aplique sin aprobación.
+- `prod`: Se activa el "Required reviewers" para que prod no aplique sin aprobación.
 
 ![Configuración de los 2 Environments. En prod se tiene un protection rule de "approve" antes de desplegar.](./assets/img/1.png)
 
@@ -149,7 +147,7 @@ Después ejecutarlo:
 ./scripts/bootstrap-oidc.sh
 ```
 
-Al final, imprime las variables necesarias para *GitHub Secrets*, debes guardarlas:
+Al final, imprime las variables necesarias para *GitHub Secrets* (debes guardarlas):
 - `AZURE_CLIENT_ID` → el APP_ID de la aplicación.
 - `AZURE_TENANT_ID` → el Tenant ID de tu Azure AD.
 - `AZURE_SUBSCRIPTION_ID` → el ID de la suscripción.
@@ -171,10 +169,21 @@ En Actions > Variables, crear las siguientes:
 
 ![Configuración de variables.](./assets/img/3.png)
 
+**7. Setear el nombre del ACR**
+
+El nombre del Azure Container Registry (ACR) debe ser único a nivel global en Azure. Por ende, se debe poner un nombre único para cada ambiente.
+
+Para `DEV` modificar el *acr_name* en el archivo `enviroments/dev.tfvars`
+
+![Configuración de variables.](./assets/img/16.png)
+
+Para `PROD` modificar el *acr_name* en el archivo `enviroments/prod.tfvars`
+
+![Configuración de variables.](./assets/img/17.png)
 
 ## Ejecución de Pipeline
 
-Se tiene el `.github/workflows/terraform.yml`:
+Se tiene dos fases en el `.github/workflows/terraform.yml`:
 
 ![Pipeline ejecutado.](./assets/img/4.png)
 
