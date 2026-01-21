@@ -21,21 +21,30 @@ Este repositorio aprovisiona la infraestructura requerida para la aplicación qu
             - keys (states separados por ambiente dentro del mismo backend)
                 - `dev/infra.tfstate`
                 - `prod/infra.tfstate`
+
+  ![Contenedor tfstate](./assets/img/6.png)
+
 - **Infraestructura dev**:
     - resource_group_name: `rg-devops-dev`
         - VNet: `vnet-devops-dev`
             - Azure Container Registry (ACR): `acrdevops1720dev`
             - Azure Kubernetes Service (AKS): `aksdevops1720dev`
 
-- **Infraestructura prod**: `
+    ![Recursos en ambiente DEV](./assets/img/11.png)
+
+- **Infraestructura prod**:
     - resource_group_name: `rg-devops-prod`
         - VNet: `vnet-devops-prod`
             - Azure Container Registry (ACR): `acrdevops1720prod`
             - Azure Kubernetes Service (AKS): `aksdevops1720prod`
 
+    ![Recursos en ambiente PROD](./assets/img/12.png)
+
 ## Costos estimados 
 - **AKS**: mínimo 2 nodos requeridos Tipo: `Standard_D2_v3` *(no tan económico)* 
 - **ACR**: nivel `Basic` 
+
+![Análisis de Costos](./assets/img/13.png)
 
 ## Entornos
 - **DEV**: cualquier push a ramas `dev/**` despliega en DEV
@@ -43,7 +52,11 @@ Este repositorio aprovisiona la infraestructura requerida para la aplicación qu
 
 Nota: El estado remoto de Terraform usa llaves separadas:
 - `dev/infra.tfstate`
+   ![Llave en DEV definida en el archivo backends/dev.hcl](./assets/img/7.png)
+    [Ir al archivo backends/dev.hcl](./backends/dev.hcl)
 - `prod/infra.tfstate`
+   ![Llave en PROD definida en el archivo backends/prod.hcl](./assets/img/8.png)
+    [Ir al archivo backends/prod.hcl](./backends/prod.hcl)
 
 ## Setup del proyecto
 
@@ -69,6 +82,12 @@ echo "$TENANT_ID"
 ```
 **2. Ejecutar el bootstrap de creación del backend remoto de Terraform en Azure:**
 
+El script crea y deja listos estos recursos en *Azure*:
+- Resource Group → `rg-tfstate-devops` (o el que definas).
+- Storage Account → nombre único tipo `sttfstateXXXX`.
+- Blob Container → `tfstate`.
+- Versionado de blobs activado.
+
 Primero dar permisos al archivo:
 ```bash
 chmod +x scripts/bootstrap-backend.sh
@@ -78,6 +97,11 @@ Después ejecutarlo:
 ./scripts/bootstrap-backend.sh
 ```
 Nota: Este Script crea los recursos del **State (backend)** mencionados arriba.
+
+Al final imprime las variables que necesitas exportar para configurar tu backend en Terraform:
+- `STATE_RG=rg-tfstate-devops`
+- `STATE_SA=sttfstateXXXX`
+- `STATE_CONTAINER=tfstate`
 
 
 **3. Configuración de Environments en GitHub**
@@ -91,11 +115,14 @@ Se crea los environments en el repo > settings > Environments:
 
 **4. Creación del APP Registration + Service principal**
 
-Este script automatiza la integración entre *GitHub Actions* y *Azure*: 
-- Crea una App Registration y Service Principal en Azure AD. 
-- Asigna permisos de *Owner* en la suscripción y *Storage Blob Data Contributor* al Storage Account del tfstate. 
-- Configura credenciales federadas para los entornos `dev` y `prod` en GitHub. 
-- Devuelve los valores necesarios para guardar en *GitHub Secrets* (`AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`).
+Este script habilita la autenticación segura de *GitHub Actions* contra *Azure* usando OIDC, con permisos suficientes para manejar infraestructura y el backend de Terraform.
+
+Después de ejecutar el script se crea:
+- Una App Registration en Azure AD (gh-oidc-infra-devops).
+- Un Service Principal que:
+    - Asigna permisos de *Owner* en la suscripción.
+    - Asigna permisos de *Storage Blob Data Contributor* en el Storage Account del `tfstate`.
+- Dos credenciales federadas OIDC para los entornos `dev` y `prod` del repo en GitHub.
 
 Primero dar permisos al archivo:
 ```bash
@@ -106,22 +133,29 @@ Después ejecutarlo:
 ./scripts/bootstrap-oidc.sh
 ```
 
+Al final, imprime las variables necesarias para *GitHub Secrets*:
+- `AZURE_CLIENT_ID` → el APP_ID de la aplicación.
+- `AZURE_TENANT_ID` → el Tenant ID de tu Azure AD.
+- `AZURE_SUBSCRIPTION_ID` → el ID de la suscripción.
+
+Nota: Estas se deben guardar en GitHub > Settings > Secrets & Variables > Actions > Repository Secrets para que los workflows las usen.
+
 **5. Creación de Secrets en GitHub**
 
-Crear los siguientes Secrets con sus respectivos valores en repo > settings > secrets & variables > actions > secrets
+Crear los siguientes Secrets (ontenido en el anterior paso) con sus respectivos valores en repo > settings > secrets & variables > actions > secrets
 
-- AZURE_CLIENT_ID
-- AZURE_TENANT_ID
-- AZURE_SUBSCRIPTION_ID
+- `AZURE_CLIENT_ID` → el APP_ID de la aplicación.
+- `AZURE_TENANT_ID` → el Tenant ID de tu Azure AD.
+- `AZURE_SUBSCRIPTION_ID` → el ID de la suscripción.
 
 ![Configuración de secrets](./assets/img/2.png)
 
 Y en Actions > Variables, crear las siguientes:
 
-- AZ_LOCATION
-- TF_STATE_CONTAINER
-- TF_STATE_RG
-- TF_STATE_SA
+- `AZ_LOCATION` → eastus
+- `TF_STATE_CONTAINER` → tfstae
+- `TF_STATE_RG` → rg-tfstate-devops
+- `TF_STATE_SA` → STATE_SA
 
 ![Configuración de variables.](./assets/img/3.png)
 
@@ -138,11 +172,12 @@ Resultado:
 
 ![Pasando a prod, se necesita un approve en apply.](./assets/img/5.png)
 
+[Ver el Pipeline en .github/workflows/terraform.yml](./.github/workflows/terraform.yml.github/workflows/terraform.yml)
 
 ## Outputs de Terraform 
 *Estos Outputs son necesarios para el repositorio de la aplicación.*
 
-Después de que el workflow finalice, revisa los logs del job **apply** (step: Show Terraform outputs), se necesitará los siguientes valores para el repositorio de microservicios [https://github.com/hsniama/app-devops](https://github.com/hsniama/app-devops):
+Después de que el workflow finalice correctamente, revisa los logs del job **apply** (step: Show Terraform outputs), se necesitará los siguientes valores (de acuerdo al ambiente) para el repositorio de microservicios [https://github.com/hsniama/app-devops](https://github.com/hsniama/app-devops):
 
 - `resource_group_name`
 - `aks_name`
@@ -150,6 +185,14 @@ Después de que el workflow finalice, revisa los logs del job **apply** (step: S
 - `acr_login_server`
 
 ## Limpieza
-- La infraestructura de DEV puede destruirse usando/ejecutando el workflow manual: `destroy-dev.yml`
-- La infraestructura de PROD puede destruirse usando/ejecutando el workflow manual: `destroy-prod.yml`
-- El backend de Terraform (almacenamiento del estado) puede eliminarse usando: `scripts/destroy-backend.sh`
+- La infraestructura de DEV puede destruirse usando/ejecutando el workflow manual: `./.github/workflows/destroy-dev.yml`
+- La infraestructura de PROD puede destruirse usando/ejecutando el workflow manual: `./.github/workflows/destroy-prod.yml`
+- El backend de Terraform (almacenamiento del estado) puede eliminarse usando: `./scripts/destroy-backend.sh`
+
+## Anexos
+
+Todos los grupos de Recursos:
+![Todos los grupos de recursos creados en la suupscripción.](./assets/img/10.png)
+
+Los dos AKS Clusters de cada ambiente:
+![AKS Clusters por ambiente.](assets/img/9.png)
