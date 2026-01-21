@@ -47,19 +47,23 @@ Este repositorio aprovisiona la infraestructura requerida para la aplicación qu
 ![Análisis de Costos](./assets/img/13.png)
 
 ## Entornos
+
+Se tiene 2 entornos para este proyecto:
+
 - **DEV**: cualquier push a ramas `dev/**` despliega en DEV
 - **PROD**: merge a `main` despliegan en PROD (se recomienda mantener habilitada la aprobación de GitHub Environment)
 
-    Nota: El estado remoto de Terraform usa llaves separadas:
+El estado remoto de Terraform usa llaves separadas:
+
 - `dev/infra.tfstate`
 
    ![Llave en DEV definida en el archivo backends/dev.hcl](./assets/img/7.png)
-    [Ir al archivo backends/dev.hcl](./backends/dev.hcl)
+    Ir al archivo [backends/dev.hcl](./backends/dev.hcl)
 
 - `prod/infra.tfstate`
 
    ![Llave en PROD definida en el archivo backends/prod.hcl](./assets/img/8.png)
-    [Ir al archivo backends/prod.hcl](./backends/prod.hcl)
+    Ir al archivo [backends/prod.hcl](./backends/prod.hcl)
 
 ## Setup del proyecto
 
@@ -101,27 +105,20 @@ Después ejecutarlo:
 ```
 Nota: Este Script crea los recursos del **State (backend)** mencionados arriba.
 
-Al final imprime las siguientes variables como información del backend en Terraform:
+Al final imprime las siguientes variables del backend en Terraform:
 - `STATE_RG=rg-tfstate-devops`
 - `STATE_SA=sttfstateXXXX`
 - `STATE_CONTAINER=tfstate`
 
-Exportarlas en tu terminal en la ubicación del proyecto de la siguiente manera:
-```bash
-export STATE_RG=rg-tfstate-devops
-export STATE_SA=sttfstateXXXX
-export STATE_CONTAINER=tfstate
-```
-Nota: el valor de `STATE_SA=sttfstateXXXX` debes reemplazarlo por el nombre que te da como resultado la ejecución del script, es decir, las `XXX` son valores generados por el siguiente bloque de codigo del que hace que sea un nombre único y global:
+Nota: Estas variables se deben setear en el backend HCL y en GitHub  Variables de repositorio así que guardarlas.
 
-```bash
-# Nombre único global (solo minúsculas y números, 3-24 chars)
-# Puedes forzarlo exportando STATE_SA antes de correr el script
-if [[ -z "${STATE_SA:-}" ]]; then
-  RAND="$(openssl rand -hex 4)"
-  STATE_SA="sttfstate${RAND}"
-fi
-```
+Setearlas manualmente en el archivo backends/dev.hcl
+![Setearlas manualmente en el archivo backends/dev.hcl](./assets/img/14.png)
+
+Setearlas manualmente en el archivo backends/prod.hcl
+![Setearlas manualmente en el archivo backends/dev.hcl](./assets/img/14.png)
+
+En el punto 6 se observa como guardar estas variables en el repositorio de Github.
 
 **3. Configuración de Environments en GitHub**
 
@@ -152,12 +149,10 @@ Después ejecutarlo:
 ./scripts/bootstrap-oidc.sh
 ```
 
-Al final, imprime las variables necesarias para *GitHub Secrets*:
+Al final, imprime las variables necesarias para *GitHub Secrets*, debes guardarlas:
 - `AZURE_CLIENT_ID` → el APP_ID de la aplicación.
 - `AZURE_TENANT_ID` → el Tenant ID de tu Azure AD.
 - `AZURE_SUBSCRIPTION_ID` → el ID de la suscripción.
-
-Nota: Estas se deben guardar en GitHub > Settings > Secrets & Variables > Actions > Repository Secrets para que los workflows las usen.
 
 **5. Creación de Secrets en GitHub**
 
@@ -165,12 +160,14 @@ Crear los siguientes Secrets (obtenidas en el anterior paso) con sus respectivos
 
 ![Configuración de secrets](./assets/img/2.png)
 
-Y en Actions > Variables, crear las siguientes:
+**6. Creación de Variables en GitHub**
+
+En Actions > Variables, crear las siguientes:
 
 - `AZ_LOCATION` → eastus
 - `TF_STATE_CONTAINER` → tfstate
 - `TF_STATE_RG` → rg-tfstate-devops
-- `TF_STATE_SA` → STATE_SA
+- `TF_STATE_SA` → sttfstateXXXX
 
 ![Configuración de variables.](./assets/img/3.png)
 
@@ -187,7 +184,7 @@ Resultado:
 
 ![Pasando a prod, se necesita un approve en apply.](./assets/img/5.png)
 
-[Ver el Pipeline en .github/workflows/terraform.yml](./.github/workflows/terraform.yml.github/workflows/terraform.yml)
+Ver el Pipeline en [.github/workflows/terraform.yml](./.github/workflows/terraform.yml.github/workflows/terraform.yml)
 
 ## Outputs de Terraform 
 *Estos Outputs son necesarios para el repositorio de la aplicación.*

@@ -48,7 +48,7 @@ az storage container create \
 
 echo
 echo "Backend created successfully."
-echo "Exporta estas variables o guárdalas en un lugar seguro:"
+echo "Estas variables se deben setear en el backend HCL y en GitHub  Variables de repositorio:"
 echo "STATE_RG=$STATE_RG"
 echo "STATE_SA=$STATE_SA"
 echo "STATE_CONTAINER=$STATE_CONTAINER"
