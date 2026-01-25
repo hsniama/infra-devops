@@ -28,12 +28,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Validar rama permitida 
-        if: startsWith(github.ref, 'refs/heads/dev/')
-        run: | 
-          echo "Este workflow solo se puede ejecutar desde ramas dev/* asi que escoge bien el Run workflow: Branch:dev/**"
-          exit 1
-
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}

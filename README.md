@@ -126,6 +126,10 @@ Se crea los environments en el repo > settings > Environments:
 
 ![Configuración de los 2 Environments. En prod se tiene un protection rule de "approve" antes de desplegar.](./assets/img/1.png)
 
+En el caso del ambiente de `prod`, en *Required reviewers* me pongo a mi mismo:
+
+![Required Reviewer](./assets/img/18.png)
+
 
 **4. Creación del APP Registration + Service principal**
 
@@ -165,7 +169,7 @@ En Actions > Variables, crear las siguientes:
 - `AZ_LOCATION` → eastus
 - `TF_STATE_CONTAINER` → tfstate
 - `TF_STATE_RG` → rg-tfstate-devops
-- `TF_STATE_SA` → sttfstateXXXX
+- `TF_STATE_SA` → sttfstateXXXX (Este es un nombre único global de Azure generado por el primer script)
 
 ![Configuración de variables.](./assets/img/3.png)
 
@@ -183,13 +187,17 @@ Para `PROD` modificar el *acr_name* en el archivo `enviroments/prod.tfvars`
 
 ## Ejecución de Pipeline
 
-Se tiene dos fases en el `.github/workflows/terraform.yml`:
+Se tiene tres Workflows que se pueden correr de forma manual sin necesidad de hacer un push desde la rama `dev/**` ni merge a `main` (en caso de no hacer cambios en el codigo). 
+
+![Workflows](./assets/img/19.png)
+
+Este workflow *terraform* crea la infraestructura y tiene dos fases en el `.github/workflows/terraform.yml`:
 
 ![Pipeline ejecutado.](./assets/img/4.png)
 
 Resultado:
-- Push a `dev/**` -> Se despliega en el ambiente de DEV.
-- PR para merge desde `dev/**` a `main` -> Se despliega en el ambiente de PROD con una aprobación en la fase `apply`.
+- DEV: push a `dev/**` o si el corremos workflow manualmente seleccionando la rama `dev/**` -> Se despliega en el ambiente de DEV.
+- PROD: merge desde `dev/**` a `main` -> Se despliega en el ambiente de PROD con una aprobación en la fase `apply`.
 
 ![Pasando a prod, se necesita un approve en apply.](./assets/img/5.png)
 
