@@ -1,18 +1,18 @@
 output "aks_name" {
-    description = "The name of the AKS cluster"
-    value       = azurerm_kubernetes_cluster.this.name
+  description = "The name of the AKS cluster"
+  value       = azurerm_kubernetes_cluster.this.name
 }
 
 output "oidc_issuer_url" {
-    description = "The OIDC issuer URL for the AKS cluster"
-    value       = azurerm_kubernetes_cluster.this.oidc_issuer_url
+  description = "The OIDC issuer URL for the AKS cluster"
+  value       = azurerm_kubernetes_cluster.this.oidc_issuer_url
 }
 
 # Importante para ArcPull
 # Devuelve el ID único de la identidad administrada del kubelet del cluster AKS.
 output "kubelet_object_id" {
-    description = "The object ID of the AKS cluster's kubelet identity"
-    value       = azurerm_kubernetes_cluster.this.kubelet_identity[0].object_id
+  description = "The object ID of the AKS cluster's kubelet identity"
+  value       = azurerm_kubernetes_cluster.this.kubelet_identity[0].object_id
 }
 
 /*

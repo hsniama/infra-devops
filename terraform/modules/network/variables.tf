@@ -1,9 +1,9 @@
-variable "vnet_name" { 
+variable "vnet_name" {
   type = string
 }
 
 variable "location" {
-    type = string
+  type = string
 }
 
 variable "resource_group_name" {
@@ -11,11 +11,11 @@ variable "resource_group_name" {
 }
 
 variable "vnet_cidr" {
-    type = string
+  type = string
 }
 
 variable "tags" {
-  type    = map(string)
+  type = map(string)
 }
 
 variable "subnet_name" {
@@ -23,5 +23,5 @@ variable "subnet_name" {
 }
 
 variable "subnet_cidr" {
-    type = string
+  type = string
 }

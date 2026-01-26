@@ -1,6 +1,6 @@
 location            = "eastus"
 resource_group_name = "rg-devops-dev"
-acr_name            = "acrdevops1720dev"     # asegurarse que sea único global
+acr_name            = "acrdevops1720dev" # asegurarse que sea único global
 aks_name            = "aksdevops1720dev"
 node_count          = 2
 node_vm_size        = "Standard_D2_v3"

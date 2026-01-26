@@ -1,25 +1,25 @@
 variable "resource_group_name" {
-    type = string
+  type = string
 }
 
 variable "location" {
-    type = string
+  type = string
 }
 
 variable "aks_name" {
-    type = string
+  type = string
 }
 
 variable "dns_prefix" {
-    type = string
+  type = string
 }
 
 variable "subnet_id" {
-    type = string
+  type = string
 }
 
 variable "node_count" {
-    type    = number
+  type = number
 }
 
 variable "node_vm_size" {
@@ -27,5 +27,5 @@ variable "node_vm_size" {
 }
 
 variable "tags" {
-    type    = map(string)
+  type = map(string)
 }
