@@ -20,8 +20,9 @@ env:
   ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
   ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-  # Para backend azurerm con Azure AD (no access keys)
-  ARM_STORAGE_USE_AZUREAD: "true"
+  ARM_STORAGE_USE_AZUREAD: "true" # Para backend azurerm con Azure AD (no access keys)
+  TF_LOG: "INFO"
+  TF_LOG_PATH: "terraform.log"
 
 jobs:
   ci:
@@ -46,8 +47,10 @@ jobs:
         run: |
           if [[ "${{ github.event_name }}" == "pull_request" || "${GITHUB_REF_NAME}" == "main" ]]; then
             echo "env=prod" >> $GITHUB_OUTPUT
+            echo "TF_LOG=INFO" >> $GITHUB_ENV
           else
             echo "env=dev" >> $GITHUB_OUTPUT
+            echo "TF_LOG=DEBUG" >> $GITHUB_ENV
           fi
 
       - name: Azure Login (OIDC)
@@ -75,6 +78,12 @@ jobs:
           name: tfplan-${{ steps.env.outputs.env }}
           path: terraform/tfplan
 
+      - name: Upload debug logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan-logs-${{ steps.env.outputs.env }}
+          path: terraform/terraform.log
+
 
   apply:
     needs: ci
@@ -86,13 +95,6 @@ jobs:
     defaults:
       run:
         working-directory: terraform
-
-    env:
-      ARM_USE_OIDC: "true"
-      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      ARM_STORAGE_USE_AZUREAD: "true"
 
     steps:
       - uses: actions/checkout@v4
@@ -106,8 +108,10 @@ jobs:
         run: |
           if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
             echo "env=prod" >> $GITHUB_OUTPUT
+            echo "TF_LOG=INFO" >> $GITHUB_ENV
           else
             echo "env=dev" >> $GITHUB_OUTPUT
+            echo "TF_LOG=DEBUG" >> $GITHUB_ENV
           fi
 
       - name: Azure Login (OIDC)
@@ -134,3 +138,9 @@ jobs:
           echo "ACR Login Server: $(terraform output -raw acr_login_server)" 
           echo "AKS Name: $(terraform output -raw aks_name)" 
           echo "Resource Group: $(terraform output -raw resource_group_name)"
+
+      - name: Upload apply debug logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-apply-logs-${{ steps.env.outputs.env }}
+          path: terraform/terraform.log
